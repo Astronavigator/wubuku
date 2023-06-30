@@ -75,8 +75,8 @@ class Widget(QMainWindow):
         self.ctrl_pressed = False
 
 
-        with open("style.css", "r") as file:            
-            self.dialogue_memo.setStyleSheet(file.read())
+        #with open("style.css", "r") as file:            
+        #    self.dialogue_memo.setStyleSheet(file.read())
 
         self.setCentralWidget(obj)
         ui_file.close()
