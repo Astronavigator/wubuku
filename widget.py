@@ -5,7 +5,9 @@ import sys
 
 
 from PySide2.QtWidgets import QApplication, \
-    QMainWindow, QPushButton, QTextEdit, QPlainTextEdit, QFileDialog
+    QMainWindow, QPushButton, QToolButton, \
+    QTextEdit, QPlainTextEdit, QFileDialog, \
+    QLineEdit
 from PySide2.QtCore import QFile, QEvent
 from PySide2.QtUiTools import QUiLoader
 
@@ -14,6 +16,7 @@ from PySide2 import QtCore
 from PySide2.QtGui import QWheelEvent, QKeyEvent
 from dialogue import Dialogue
 
+from PySide2.QtGui import QTextCursor, QTextCharFormat, QColor
 
 
 Qt = QtCore.Qt
@@ -22,18 +25,23 @@ class Widget(QMainWindow):
     def __init__(self):
         super(Widget, self).__init__()
         self.load_ui()
-        self.init_dialogue
+        self.init_dialogue()
 
     def init_dialogue(self):
         with open(".api_key", "r") as file:
-            api_key = file.read()
-        self.dialogue = Dialogue(api_key)        
+            self.api_key = file.read()
+        self.dialogue = Dialogue(self.api_key)
+
+        self.dialogue.print_messages = True
+        self.dialogue.print_system_messages = True        
 
     def load_ui(self):
         loader = QUiLoader()
         path = os.fspath(Path(__file__).resolve().parent / "form.ui")
+
         ui_file = QFile(path)
         ui_file.open(QFile.ReadOnly)
+
         obj = loader.load(ui_file, self)
 
         button_open = obj.findChild(QPushButton, 'pushButtonOpen')
@@ -44,8 +52,19 @@ class Widget(QMainWindow):
 
         button_save = obj.findChild(QPushButton, 'pushButtonSave')
         button_save.clicked.connect(self.button_save_clicked)
+       
+        button_restart = obj.findChild(QToolButton, 'toolButtonRestart')
+        button_restart.clicked.connect(self.button_restart_clicked)
 
         self.bigtext = obj.findChild(QPlainTextEdit, 'bigtext')
+        self.dialogue_memo = obj.findChild(QTextEdit, 'textEditDialogue')
+        self.edit_user_text = obj.findChild(QLineEdit, 'lineEditUserText')
+
+        button_say = obj.findChild(QPushButton, 'pushButtonSay')
+        button_say.clicked.connect(self.button_say_clicked)
+
+        button_say_as_system = obj.findChild(QPushButton, 'pushButtonSayAsSystem')
+        button_say_as_system.clicked.connect(self.button_say_as_system_clicked)
 
         self.load_text_from_file()
 
@@ -56,9 +75,56 @@ class Widget(QMainWindow):
         self.ctrl_pressed = False
 
 
+        with open("style.css", "r") as file:            
+            self.dialogue_memo.setStyleSheet(file.read())
+
         self.setCentralWidget(obj)
         ui_file.close()
+
+        # Создаем формат для стилей пользователя
+        self.user_format = QTextCharFormat()
+        self.user_format.setBackground(QColor("white"))
+        #self.user_format.setPadding(10)
+        #self.user_format.setBorder(QColor("silver"), 1)
+        #self.user_format.setBottomMargin(10)
+
+        # Создаем формат для стилей AI
+        self.ai_format = QTextCharFormat()
+        self.ai_format.setBackground(QColor("#eeeeee"))
+        self.ai_format.setForeground(QColor("blue"))
+
+        #self.ai_format.setPadding(10)
+        #self.ai_format.setBorder(QColor("gray"), 1)
+        #self.ai_format.setBottomMargin(10)
+
         return obj
+
+
+    def button_say_clicked(self):
+        text = self.edit_user_text.text()
+        #self.dialogue_memo.append("<div class='user'>"+text+"</div>")
+
+        # Добавляем строки текста с применением стилей
+        self.dialogue_memo.setCurrentCharFormat(self.user_format)
+        self.dialogue_memo.insertPlainText(text+"\n")
+
+        res = self.dialogue.say(text)
+        #self.dialogue_memo.append("<div class='ai'>"+res+"</div>")
+        self.dialogue_memo.setCurrentCharFormat(self.ai_format)
+        self.dialogue_memo.insertPlainText(res+"\n")
+
+        #self.dialogue_memo.setPlainText(str(self.dialogue.messages))
+
+
+    def button_say_as_system_clicked(self):
+        print("button_say_as_system_clicked")
+
+    def button_restart_clicked(self):
+        print("<restart dialogue>")
+        self.dialogue.intro_text = self.bigtext.toPlainText()
+        self.dialogue.messages = []
+
+        self.dialogue_memo.setPlainText("")
 
 
     def button_save_clicked(self):
