@@ -13,7 +13,7 @@
 Пример беседы:
 Пользователь: Какое сейчас число?
 AI: <BASH>date +%Y-%m-%d</BASH>
-System: 2023-06-20
+System: <BASH_RESULT><item><cmd>date +%Y-%m-%d</cmd><result>2023-06-20</result></BASH_RESULT>
 AI:Сегодня 20 июня 2023 года
 Пользователь: Спасибо
 
