@@ -125,6 +125,7 @@ class Widget(QMainWindow):
         self.dialogue.messages = []
 
         self.dialogue_memo.setPlainText("")
+        self.edit_user_text.setEnabled(True)
 
 
     def button_save_clicked(self):
