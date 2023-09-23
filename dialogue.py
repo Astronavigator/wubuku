@@ -1,5 +1,5 @@
 import openai
-from textapi import BashApi
+from textapi import *
 
 class Dialogue:
     intro_text = ""
@@ -10,9 +10,11 @@ class Dialogue:
     print_messages = False
     print_system_messages = False
 
+    apis: list[TextApi]
+
     def __init__(self, api_key):
         openai.api_key = api_key
-        self.api = BashApi()
+        self.apis = [BashApi(), SqlApi()]
 
 
     def say(self, text, role = "user"):
@@ -35,9 +37,10 @@ class Dialogue:
         if self.print_messages:
             print("assistant: "+res_text+"\n")
 
-        if self.api.check_string(res_text):
-            res = self.api.do_it(res_text)
-            return self.say(res, role = "system")
+        for api in self.apis:
+            if api.check_string(res_text):
+                res = api.do_it(res_text)
+                return self.say(res, role = "system")
 
         return res_text
 
