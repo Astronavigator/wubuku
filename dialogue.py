@@ -1,10 +1,12 @@
-import openai
+# import openai
 from textapi import *
+from openai import OpenAI
+
 
 class Dialogue:
     intro_text = ""
     messages = []
-    model = "gpt-3.5-turbo"
+    model = "gpt-4"
     max_messages = 10
 
     print_messages = False
@@ -13,7 +15,9 @@ class Dialogue:
     apis: list[TextApi]
 
     def __init__(self, api_key):
-        openai.api_key = api_key
+
+        self.client = OpenAI(api_key=api_key)
+        #openai.api_key = api_key
         self.apis = [BashApi(), SqlApi()]
 
 
@@ -29,7 +33,7 @@ class Dialogue:
         msgs = [{"role": "system", "content": self.intro_text}] + \
             self.messages[-self.max_messages:]
         
-        res =  openai.ChatCompletion.create(model=self.model, messages=msgs)
+        res = self.client.chat.completions.create(model=self.model, messages=msgs)
         res_text = res.choices[0].message.content 
 
         self.messages.append({"role":"assistant", "content": res_text})
