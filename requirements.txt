@@ -1,2 +1,2 @@
 openai
-PySide2
+PySide6

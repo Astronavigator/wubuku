@@ -5,19 +5,19 @@ from pathlib import Path
 import sys
 
 
-from PySide2.QtWidgets import QApplication, \
+from PySide6.QtWidgets import QApplication, \
     QMainWindow, QPushButton, QToolButton, \
     QTextEdit, QPlainTextEdit, QFileDialog, \
     QLineEdit
-from PySide2.QtCore import QFile, QEvent
-from PySide2.QtUiTools import QUiLoader
+from PySide6.QtCore import QFile, QEvent
+from PySide6.QtUiTools import QUiLoader
 
-from PySide2 import QtCore
+from PySide6 import QtCore
 
-from PySide2.QtGui import QWheelEvent, QKeyEvent
+from PySide6.QtGui import QWheelEvent, QKeyEvent
 from dialogue import Dialogue
 
-from PySide2.QtGui import QTextCursor, QTextCharFormat, QColor
+from PySide6.QtGui import QTextCursor, QTextCharFormat, QColor
 
 
 Qt = QtCore.Qt
@@ -222,4 +222,4 @@ if __name__ == "__main__":
     widget.resize(700, 400)
     widget.show()
     # widget.setGeometry(100, 100, 700, 500)
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
